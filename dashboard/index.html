@@ -69,17 +69,27 @@
 
   <main class="container" style="padding-top: 24px; padding-bottom: 60px;">
 
-    <!-- TAB 1: OVERVIEW & TOP 10 -->
+    <!-- TAB 1: OVERVIEW & TOP 10 / TOP 15 -->
     <section id="section-overview" class="tab-section">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px;">
-        <h2 style="font-size: 22px; color: var(--text);">Top 10 Batters Under Pressure</h2>
-        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Ranked by Shrunk BPV x Reliability</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 id="batters-heading" style="font-size: 22px; color: var(--text);">Top 10 Batters Under Pressure</h2>
+          <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Ranked by Shrunk BPV x Reliability</span>
+        </div>
+        <button id="toggle-batters-top15-btn" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;">
+          Show Next 5 Players (Top 15) ↓
+        </button>
       </div>
       <div id="top10-batters-grid" class="top10-grid"></div>
 
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 36px;">
-        <h2 style="font-size: 22px; color: var(--text);">Top 10 Bowlers Under Pressure</h2>
-        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Ranked by Shrunk BoPV x Reliability</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 id="bowlers-heading" style="font-size: 22px; color: var(--text);">Top 10 Bowlers Under Pressure</h2>
+          <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Ranked by Shrunk BoPV x Reliability</span>
+        </div>
+        <button id="toggle-bowlers-top15-btn" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;">
+          Show Next 5 Players (Top 15) ↓
+        </button>
       </div>
       <div id="top10-bowlers-grid" class="top10-grid"></div>
     </section>
@@ -235,10 +245,88 @@
       </div>
     </section>
 
-    <!-- TAB 5: COMPARE -->
+    <!-- TAB 5: COMPARE & SQUAD SIMULATOR (WITH CRUD) -->
     <section id="section-compare" class="tab-section" style="display: none;">
-      <h2 style="font-size: 24px; color: var(--text); margin-bottom: 6px;">Head-to-Head Player Comparison</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">Comparing selected players side-by-side across sample volume, context execution, and reliability.</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+        <div>
+          <h2 style="font-size: 24px; color: var(--text); margin-bottom: 4px;">Head-to-Head Comparison & Custom Matchup Simulator</h2>
+          <p style="color: var(--text-muted); font-size: 13.5px;">Add, search, remove, or create custom trial scenarios (CRUD) to evaluate pressure matchups.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="add-existing-player-btn" class="btn btn-secondary">+ Add Existing Player</button>
+          <button id="create-custom-player-btn" class="btn btn-primary">+ Create Custom Player / Scenario</button>
+          <button id="clear-compare-btn" class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Quick Add Player Bar -->
+      <div id="quick-add-bar" style="display: none; background: var(--surface); border: 1px solid var(--border); padding: 14px; border-radius: var(--radius-md); margin-bottom: 18px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <label style="font-size: 13px; font-weight: bold; color: var(--text);">Select Player to Add:</label>
+          <select id="quick-add-type" class="filter-select" style="min-width: 120px;">
+            <option value="batter">Batter</option>
+            <option value="bowler">Bowler</option>
+          </select>
+          <select id="quick-add-select" class="filter-select" style="min-width: 240px; flex: 1;"></select>
+          <button id="confirm-quick-add-btn" class="btn btn-primary" style="padding: 6px 14px;">Add</button>
+          <button id="cancel-quick-add-btn" class="btn btn-secondary" style="padding: 6px 14px;">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Custom Player Modal / Form -->
+      <div id="custom-player-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); width: 90%; max-width: 580px; padding: 24px; box-shadow: var(--shadow-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+            <h3 id="custom-modal-title" style="font-size: 20px; color: var(--text);">Create Custom Player / Matchup Trial</h3>
+            <button onclick="closeCustomPlayerModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);">&times;</button>
+          </div>
+          <form id="custom-player-form">
+            <input type="hidden" id="custom-edit-index" value="-1">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Player Name</label>
+                <input type="text" id="cust-name" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required placeholder="e.g. Trial Finisher X">
+              </div>
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Type</label>
+                <select id="cust-type" class="filter-select" style="width: 100%; margin-top: 4px;">
+                  <option value="batter">Batter</option>
+                  <option value="bowler">Bowler</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Tactical Role / Phase</label>
+                <input type="text" id="cust-role" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required placeholder="e.g. Death Specialist">
+              </div>
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">High-Pressure Deliveries (HP Balls)</label>
+                <input type="number" id="cust-balls" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required min="10" max="600" value="120">
+              </div>
+              <div>
+                <label id="cust-rate-label" style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Pressure Strike Rate (or Econ)</label>
+                <input type="number" step="0.1" id="cust-rate" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required value="185.0">
+              </div>
+              <div>
+                <label id="cust-diff-label" style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">RAE / 100 Balls (or RSAE)</label>
+                <input type="number" step="0.1" id="cust-diff" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required value="28.0">
+              </div>
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Match Hit Rate (0.0 to 1.0)</label>
+                <input type="number" step="0.05" min="0.1" max="1.0" id="cust-hit" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required value="0.65">
+              </div>
+              <div>
+                <label style="font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-muted);">Overall Pressure Rating</label>
+                <input type="number" step="0.1" id="cust-rating" class="search-input" style="width: 100%; min-width: auto; margin-top: 4px;" required value="20.5">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+              <button type="button" class="btn btn-secondary" onclick="closeCustomPlayerModal()">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Player to Compare</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <div id="compare-cards-slot" class="compare-container"></div>
     </section>
 
@@ -308,6 +396,58 @@
     </section>
 
   </main>
+
+  <!-- Global Footer with Glossary of Short Forms & Cricket Analytics Terms -->
+  <footer style="background-color: var(--surface); border-top: 2px solid var(--border); padding: 36px 0 24px; margin-top: 40px;">
+    <div class="container">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="rr_logo_sm.png" alt="RR" style="width: 28px; height: 32px; object-fit: contain;">
+          <span style="font-family: var(--font-heading); font-size: 16px; font-weight: bold; color: var(--text);">
+            RAJASTHAN ROYALS <span style="color: var(--rr-pink);">ANALYTICS GLOSSARY</span>
+          </span>
+        </div>
+        <span style="font-size: 12px; color: var(--text-muted);">Quick Reference of Terms, Acronyms & Statistical Logic Used in this Dashboard</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; font-size: 12.5px; line-height: 1.6;">
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-pink);">
+          <div style="font-weight: bold; color: var(--rr-pink); text-transform: uppercase; margin-bottom: 4px;">PI (Pressure Index)</div>
+          <p style="color: var(--text-secondary);">A continuous pre-ball score from 0.0 to 1.0 combining <strong>70% Leverage</strong> (expected swing in winning probability) and <strong>30% State Tension</strong> (closeness to 50-50). High Pressure (HP) = top 25% highest-stakes balls.</p>
+        </div>
+
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-blue);">
+          <div style="font-weight: bold; color: var(--rr-blue); text-transform: uppercase; margin-bottom: 4px;">RAE & RSAE</div>
+          <p style="color: var(--text-secondary);"><strong>RAE (Runs Above Expected)</strong>: Actual batter runs minus context expectation. <strong>RSAE (Runs Saved Above Expected)</strong>: Expected bowler runs conceded minus actual runs conceded.</p>
+        </div>
+
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-pink);">
+          <div style="font-weight: bold; color: var(--rr-pink); text-transform: uppercase; margin-bottom: 4px;">WP & WPA</div>
+          <p style="color: var(--text-secondary);"><strong>WP (Win Probability)</strong>: The instantaneous chance (0-100%) that the batting team wins. <strong>WPA (Win Probability Added)</strong>: Change in win probability directly produced by the player on that delivery.</p>
+        </div>
+
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-blue);">
+          <div style="font-weight: bold; color: var(--rr-blue); text-transform: uppercase; margin-bottom: 4px;">BPV & BoPV</div>
+          <p style="color: var(--text-secondary);"><strong>BPV (Batting Pressure Value)</strong>: Combined per-100-ball rating blending RAE, WPA, and dismissal survival. <strong>BoPV (Bowling Pressure Value)</strong>: Combined bowling rating blending runs saved, wickets, and dot balls.</p>
+        </div>
+
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-pink);">
+          <div style="font-weight: bold; color: var(--rr-pink); text-transform: uppercase; margin-bottom: 4px;">Hit Rate (% Consistency)</div>
+          <p style="color: var(--text-secondary);">The percentage of high-pressure matches where the player beat match context expectation (net positive impact). Used to filter out erratic 'lucky one-off' performers.</p>
+        </div>
+
+        <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-blue);">
+          <div style="font-weight: bold; color: var(--rr-blue); text-transform: uppercase; margin-bottom: 4px;">95% Clustered CI</div>
+          <p style="color: var(--text-secondary);"><strong>95% Confidence Interval</strong>: [Lower Bound, Upper Bound] calculated via 400-iteration Match-Clustered Block Bootstrap. A narrower range indicates a proven, high-certainty sample.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
+        <span>© 2026 Rajasthan Royals — SupeRR Selector Season 2 Technical Submission | Confidential Analytics Dossier</span>
+        <span>Runs 100% Offline • Built with Pure Web Standards • Zero External Tracking</span>
+      </div>
+    </div>
+  </footer>
 
   <!-- Player Detail Modal -->
   <div id="player-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">

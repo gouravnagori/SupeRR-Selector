@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // State
   let currentTab = 'overview';
+  let showBattersTop15 = false;
+  let showBowlersTop15 = false;
 
   // Batters Table State
   let batSortKey = 'final_pressure_rating';
@@ -53,14 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // ==================== SECTION 1: OVERVIEW HERO ====================
+  // ==================== SECTION 1: OVERVIEW HERO (TOP 10 & TOP 15) ====================
   function renderOverview() {
     const batGrid = document.getElementById('top10-batters-grid');
     const bowlGrid = document.getElementById('top10-bowlers-grid');
+    const batHeading = document.getElementById('batters-heading');
+    const bowlHeading = document.getElementById('bowlers-heading');
+    const batBtn = document.getElementById('toggle-batters-top15-btn');
+    const bowlBtn = document.getElementById('toggle-bowlers-top15-btn');
+
+    const batList = showBattersTop15 ? (data.top15_batters || data.top10_batters) : data.top10_batters;
+    const bowlList = showBowlersTop15 ? (data.top15_bowlers || data.top10_bowlers) : data.top10_bowlers;
+
+    if (batHeading) batHeading.textContent = showBattersTop15 ? 'Top 15 Batters Under Pressure' : 'Top 10 Batters Under Pressure';
+    if (bowlHeading) bowlHeading.textContent = showBowlersTop15 ? 'Top 15 Bowlers Under Pressure' : 'Top 10 Bowlers Under Pressure';
+    if (batBtn) batBtn.textContent = showBattersTop15 ? 'Show Top 10 Only ↑' : 'Show Next 5 Players (Top 15) ↓';
+    if (bowlBtn) bowlBtn.textContent = showBowlersTop15 ? 'Show Top 10 Only ↑' : 'Show Next 5 Players (Top 15) ↓';
 
     if (batGrid) {
-      batGrid.innerHTML = data.top10_batters.map((p, idx) => `
-        <div class="player-card rank-${p.rank} animate-rise" style="animation-delay: ${idx * 60}ms" onclick="openPlayerModal('batter', ${p.striker_id})">
+      batGrid.innerHTML = batList.map((p, idx) => `
+        <div class="player-card rank-${p.rank} animate-rise" style="animation-delay: ${idx * 40}ms" onclick="openPlayerModal('batter', ${p.striker_id})">
           <div class="card-header">
             <div>
               <div class="player-name">#${p.rank} ${p.striker_name}</div>
@@ -92,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (bowlGrid) {
-      bowlGrid.innerHTML = data.top10_bowlers.map((p, idx) => `
-        <div class="player-card rank-${p.rank} animate-rise" style="animation-delay: ${idx * 60}ms" onclick="openPlayerModal('bowler', ${p.bowler_id})">
+      bowlGrid.innerHTML = bowlList.map((p, idx) => `
+        <div class="player-card rank-${p.rank} animate-rise" style="animation-delay: ${idx * 40}ms" onclick="openPlayerModal('bowler', ${p.bowler_id})">
           <div class="card-header">
             <div>
               <div class="player-name">#${p.rank} ${p.bowler_name}</div>
@@ -124,6 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
     }
   }
+
+  // Toggle Top 15 Event Listeners
+  document.getElementById('toggle-batters-top15-btn')?.addEventListener('click', () => {
+    showBattersTop15 = !showBattersTop15;
+    renderOverview();
+  });
+
+  document.getElementById('toggle-bowlers-top15-btn')?.addEventListener('click', () => {
+    showBowlersTop15 = !showBowlersTop15;
+    renderOverview();
+  });
 
   // ==================== SECTION 2: INTERACTIVE SCRUBBER ====================
   function initScrubber() {
@@ -404,56 +429,252 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) modal.style.display = 'none';
   };
 
-  // ==================== SECTION 6: COMPARE TOOL ====================
+  // ==================== SECTION 6: COMPARE TOOL WITH FULL CRUD ====================
   window.addToCompare = function(p) {
-    if (comparePlayers.length >= 3) {
-      comparePlayers.shift();
+    // Avoid exact duplicate
+    const exists = comparePlayers.some(x => (x.id === p.id) || 
+      ('striker_id' in x && 'striker_id' in p && x.striker_id === p.striker_id) ||
+      ('bowler_id' in x && 'bowler_id' in p && x.bowler_id === p.bowler_id)
+    );
+    if (!exists) {
+      comparePlayers.push(p);
     }
-    comparePlayers.push(p);
     closePlayerModal();
     switchTab('compare');
   };
+
+  window.removeComparePlayer = function(index) {
+    comparePlayers.splice(index, 1);
+    renderCompareView();
+  };
+
+  window.clearAllCompare = function() {
+    comparePlayers = [];
+    renderCompareView();
+  };
+
+  window.editCustomPlayer = function(index) {
+    const p = comparePlayers[index];
+    if (!p) return;
+    openCustomPlayerModal(p, index);
+  };
+
+  // Quick Add UI logic
+  const quickAddBar = document.getElementById('quick-add-bar');
+  const quickAddType = document.getElementById('quick-add-type');
+  const quickAddSelect = document.getElementById('quick-add-select');
+  const addExistingBtn = document.getElementById('add-existing-player-btn');
+  const confirmQuickAddBtn = document.getElementById('confirm-quick-add-btn');
+  const cancelQuickAddBtn = document.getElementById('cancel-quick-add-btn');
+  const clearCompareBtn = document.getElementById('clear-compare-btn');
+
+  function populateQuickAddOptions() {
+    if (!quickAddSelect || !quickAddType) return;
+    const type = quickAddType.value;
+    const list = type === 'batter' ? data.all_batters : data.all_bowlers;
+    
+    // Sort alphabetically by name
+    const sorted = [...list].sort((a, b) => {
+      const na = type === 'batter' ? a.striker_name : a.bowler_name;
+      const nb = type === 'batter' ? b.striker_name : b.bowler_name;
+      return na.localeCompare(nb);
+    });
+
+    quickAddSelect.innerHTML = sorted.map(p => {
+      const id = type === 'batter' ? p.striker_id : p.bowler_id;
+      const name = type === 'batter' ? p.striker_name : p.bowler_name;
+      const rating = p.final_pressure_rating.toFixed(1);
+      return `<option value="${id}">${name} (Rating: ${rating})</option>`;
+    }).join('');
+  }
+
+  if (quickAddType) {
+    quickAddType.addEventListener('change', populateQuickAddOptions);
+  }
+
+  if (addExistingBtn) {
+    addExistingBtn.addEventListener('click', () => {
+      populateQuickAddOptions();
+      if (quickAddBar) quickAddBar.style.display = 'block';
+    });
+  }
+
+  if (cancelQuickAddBtn) {
+    cancelQuickAddBtn.addEventListener('click', () => {
+      if (quickAddBar) quickAddBar.style.display = 'none';
+    });
+  }
+
+  if (confirmQuickAddBtn) {
+    confirmQuickAddBtn.addEventListener('click', () => {
+      const type = quickAddType.value;
+      const id = parseInt(quickAddSelect.value);
+      const list = type === 'batter' ? data.all_batters : data.all_bowlers;
+      const p = list.find(x => (type === 'batter' ? x.striker_id : x.bowler_id) === id);
+      if (p) {
+        window.addToCompare(p);
+      }
+      if (quickAddBar) quickAddBar.style.display = 'none';
+    });
+  }
+
+  if (clearCompareBtn) {
+    clearCompareBtn.addEventListener('click', () => {
+      window.clearAllCompare();
+    });
+  }
+
+  // Custom Player CRUD Modal
+  window.openCustomPlayerModal = function(player = null, editIndex = -1) {
+    const modal = document.getElementById('custom-player-modal');
+    const title = document.getElementById('custom-modal-title');
+    const form = document.getElementById('custom-player-form');
+    if (!modal || !form) return;
+
+    document.getElementById('custom-edit-index').value = editIndex;
+    if (player && editIndex >= 0) {
+      title.textContent = `Edit Matchup: ${player.striker_name || player.bowler_name || player.name}`;
+      const isBat = player.is_custom ? player.player_type === 'batter' : ('striker_name' in player);
+      document.getElementById('cust-name').value = player.striker_name || player.bowler_name || player.name;
+      document.getElementById('cust-type').value = isBat ? 'batter' : 'bowler';
+      document.getElementById('cust-role').value = player.role || 'Death Specialist';
+      document.getElementById('cust-balls').value = player.balls || 100;
+      document.getElementById('cust-rate').value = isBat ? (player.sr_hp || 180) : (player.econ_hp || 7.5);
+      document.getElementById('cust-diff').value = isBat ? (player.rae_per_100 || 25) : (player.rsae_per_100 || 18);
+      document.getElementById('cust-hit').value = player.hit_rate || 0.65;
+      document.getElementById('cust-rating').value = player.final_pressure_rating || 20.0;
+    } else {
+      title.textContent = 'Create Custom Player / Scenario (CRUD)';
+      form.reset();
+      document.getElementById('custom-edit-index').value = -1;
+    }
+    modal.style.display = 'flex';
+  };
+
+  window.closeCustomPlayerModal = function() {
+    const modal = document.getElementById('custom-player-modal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  document.getElementById('create-custom-player-btn')?.addEventListener('click', () => {
+    openCustomPlayerModal();
+  });
+
+  document.getElementById('cust-type')?.addEventListener('change', (e) => {
+    const isBat = e.target.value === 'batter';
+    const rateLbl = document.getElementById('cust-rate-label');
+    const diffLbl = document.getElementById('cust-diff-label');
+    if (rateLbl) rateLbl.textContent = isBat ? 'Pressure Strike Rate' : 'Pressure Economy (per over)';
+    if (diffLbl) diffLbl.textContent = isBat ? 'RAE / 100 Balls' : 'RSAE / 100 Balls';
+  });
+
+  document.getElementById('custom-player-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const editIndex = parseInt(document.getElementById('custom-edit-index').value);
+    const type = document.getElementById('cust-type').value;
+    const isBat = type === 'batter';
+    const name = document.getElementById('cust-name').value;
+    const role = document.getElementById('cust-role').value;
+    const balls = parseInt(document.getElementById('cust-balls').value);
+    const rate = parseFloat(document.getElementById('cust-rate').value);
+    const diff = parseFloat(document.getElementById('cust-diff').value);
+    const hitRate = parseFloat(document.getElementById('cust-hit').value);
+    const rating = parseFloat(document.getElementById('cust-rating').value);
+
+    const customObj = {
+      is_custom: true,
+      player_type: type,
+      name: name,
+      role: role,
+      balls: balls,
+      hit_rate: hitRate,
+      final_pressure_rating: rating,
+      ci_lower: Math.max(0, rating - 8.5),
+      ci_upper: rating + 12.0
+    };
+
+    if (isBat) {
+      customObj.striker_name = name;
+      customObj.sr_hp = rate;
+      customObj.rae_per_100 = diff;
+    } else {
+      customObj.bowler_name = name;
+      customObj.econ_hp = rate;
+      customObj.rsae_per_100 = diff;
+    }
+
+    if (editIndex >= 0 && editIndex < comparePlayers.length) {
+      comparePlayers[editIndex] = customObj;
+    } else {
+      comparePlayers.push(customObj);
+    }
+
+    closeCustomPlayerModal();
+    renderCompareView();
+  });
 
   function renderCompareView() {
     const container = document.getElementById('compare-cards-slot');
     if (!container) return;
 
     if (comparePlayers.length === 0) {
-      container.innerHTML = `<p style="color: var(--text-muted);">Select players from the Batters or Bowlers tabs to compare head-to-head.</p>`;
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; background: var(--surface); border: 2px dashed var(--border); padding: 40px; border-radius: var(--radius-md); text-align: center;">
+          <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 12px;">No players currently selected in the comparison deck.</p>
+          <button class="btn btn-primary" onclick="document.getElementById('add-existing-player-btn').click()">+ Add Player from Database</button>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = comparePlayers.map((p, idx) => {
-      const isBat = 'striker_name' in p;
-      const name = isBat ? p.striker_name : p.bowler_name;
+      const isBat = p.is_custom ? (p.player_type === 'batter') : ('striker_name' in p);
+      const name = p.striker_name || p.bowler_name || p.name;
+      const rateVal = isBat ? `${(p.sr_hp || 0).toFixed(1)} SR` : `${(p.econ_hp || 0).toFixed(2)} Econ`;
+      const diffVal = isBat ? `${(p.rae_per_100 || 0).toFixed(1)} RAE` : `${(p.rsae_per_100 || 0).toFixed(1)} RSAE`;
+      const isCustomBadge = p.is_custom ? `<span style="background: var(--rr-gold-light); color: #B45309; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Custom Trial</span>` : '';
+
       return `
         <div class="compare-card ${idx === 0 ? 'primary' : ''}">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="font-size: 20px; color: var(--text);">${name}</h3>
-            <span class="player-role-tag">${isBat ? p.role : p.role + ' phase'}</span>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 style="font-size: 19px; color: var(--text);">${name}</h3>
+                ${isCustomBadge}
+              </div>
+              <span class="player-role-tag">${isBat ? p.role : p.role + ' phase'}</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button title="Edit Player / Scenario" onclick="editCustomPlayer(${idx})" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px 8px; cursor: pointer; font-size: 12px;">✏️</button>
+              <button title="Remove Player" onclick="removeComparePlayer(${idx})" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px 8px; cursor: pointer; font-size: 12px; color: var(--danger);">🗑️</button>
+            </div>
           </div>
-          <div style="font-size: 32px; font-family: var(--font-heading); color: var(--rr-pink); font-weight: 800; margin-bottom: 12px;">
-            ${p.final_pressure_rating.toFixed(2)}
+
+          <div style="font-size: 32px; font-family: var(--font-heading); color: var(--rr-pink); font-weight: 800; margin-bottom: 14px; line-height: 1;">
+            ${(p.final_pressure_rating || 0).toFixed(2)}
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); font-weight: normal; margin-left: 6px;">
+              [${(p.ci_lower || 0).toFixed(1)}, ${(p.ci_upper || 0).toFixed(1)}]
+            </span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px;">
+
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md);">
             <div style="display: flex; justify-content: space-between;">
-              <span>High-Pressure Balls:</span> <strong>${p.balls}</strong>
+              <span style="color: var(--text-muted);">High-Pressure Deliveries:</span>
+              <strong>${p.balls || 0} balls</strong>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span>${isBat ? 'Pressure Strike Rate' : 'Pressure Economy'}:</span>
-              <strong>${isBat ? p.sr_hp.toFixed(1) : p.econ_hp.toFixed(2)}</strong>
+              <span style="color: var(--text-muted);">${isBat ? 'Pressure Strike Rate' : 'Pressure Economy'}:</span>
+              <strong style="color: var(--text);">${rateVal}</strong>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span>${isBat ? 'RAE / 100' : 'RSAE / 100'}:</span>
-              <strong>${(isBat ? p.rae_per_100 : p.rsae_per_100).toFixed(1)}</strong>
+              <span style="color: var(--text-muted);">${isBat ? 'Runs Above Expected (RAE)' : 'Runs Saved (RSAE)'}:</span>
+              <strong style="color: ${(isBat ? p.rae_per_100 : p.rsae_per_100) >= 0 ? 'var(--success)' : 'var(--danger)'};">
+                ${diffVal}
+              </strong>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span>Consistency Hit Rate:</span>
-              <strong>${(p.hit_rate * 100).toFixed(0)}%</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>95% Confidence Interval:</span>
-              <strong style="font-family: var(--font-mono);">[${p.ci_lower.toFixed(1)}, ${p.ci_upper.toFixed(1)}]</strong>
+              <span style="color: var(--text-muted);">Consistency Hit Rate:</span>
+              <strong>${((p.hit_rate || 0) * 100).toFixed(0)}%</strong>
             </div>
           </div>
         </div>
