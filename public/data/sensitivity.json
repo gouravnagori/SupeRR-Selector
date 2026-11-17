@@ -1,0 +1,65 @@
+[
+  {
+    "scenario": "Baseline (Q75 PI)",
+    "batter_spearman": 0.903,
+    "batter_kendall": 0.765,
+    "batter_top10_overlap": "8/10",
+    "bowler_spearman": 0.71,
+    "bowler_kendall": 0.531,
+    "bowler_top10_overlap": "5/10"
+  },
+  {
+    "scenario": "Alt 1: Death Chase Close",
+    "batter_spearman": 0.556,
+    "batter_kendall": 0.397,
+    "batter_top10_overlap": "3/10",
+    "bowler_spearman": 0.399,
+    "bowler_kendall": 0.229,
+    "bowler_top10_overlap": "0/10"
+  },
+  {
+    "scenario": "Alt 2: Top 20% PI",
+    "batter_spearman": 0.838,
+    "batter_kendall": 0.66,
+    "batter_top10_overlap": "7/10",
+    "bowler_spearman": 0.688,
+    "bowler_kendall": 0.516,
+    "bowler_top10_overlap": "6/10"
+  },
+  {
+    "scenario": "Alt 3: RRR Pressure Only",
+    "batter_spearman": 0.406,
+    "batter_kendall": 0.295,
+    "batter_top10_overlap": "1/10",
+    "bowler_spearman": 0.386,
+    "bowler_kendall": 0.279,
+    "bowler_top10_overlap": "2/10"
+  },
+  {
+    "scenario": "Alt 4: No Comp Weighting",
+    "batter_spearman": 0.904,
+    "batter_kendall": 0.767,
+    "batter_top10_overlap": "9/10",
+    "bowler_spearman": 0.709,
+    "bowler_kendall": 0.531,
+    "bowler_top10_overlap": "5/10"
+  },
+  {
+    "scenario": "Alt 5: Min 50 Balls (Relaxed)",
+    "batter_spearman": 0.63,
+    "batter_kendall": 0.554,
+    "batter_top10_overlap": "6/10",
+    "bowler_spearman": 0.458,
+    "bowler_kendall": 0.368,
+    "bowler_top10_overlap": "2/10"
+  },
+  {
+    "scenario": "Alt 6: Min 100 Balls (Strict)",
+    "batter_spearman": 0.937,
+    "batter_kendall": 0.792,
+    "batter_top10_overlap": "7/10",
+    "bowler_spearman": 0.785,
+    "bowler_kendall": 0.594,
+    "bowler_top10_overlap": "5/10"
+  }
+]
