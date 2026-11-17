@@ -360,20 +360,36 @@ h1, h2, h3, h4, .brand-title, .metric-value, .rank-badge {
 
 .card-rating-block {
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .rating-headline {
   font-size: 26px;
   font-family: var(--font-heading);
   font-weight: 800;
-  color: var(--text);
+  color: var(--rr-pink);
   line-height: 1;
 }
 
-.rating-ci {
-  font-size: 10.5px;
+.rating-sub-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
   color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.rating-ci {
+  font-size: 11px;
+  color: var(--text-secondary);
   font-family: var(--font-mono);
+  margin-top: 2px;
+  font-weight: 600;
 }
 
 .card-metrics-row {

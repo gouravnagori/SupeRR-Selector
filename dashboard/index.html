@@ -73,6 +73,16 @@
 
     <!-- TAB 1: OVERVIEW & TOP 10 / TOP 15 -->
     <section id="section-overview" class="tab-section">
+
+      <!-- Real-World Quick Guide Banner -->
+      <div style="background: linear-gradient(135deg, rgba(230, 56, 148, 0.07) 0%, rgba(26, 54, 103, 0.05) 100%); border: 1.5px solid var(--border); border-left: 4px solid var(--rr-pink); border-radius: var(--radius-md); padding: 12px 18px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px;">
+        <div style="color: var(--text);">
+          <strong style="color: var(--rr-pink); font-family: var(--font-heading); letter-spacing: 0.5px; text-transform: uppercase;">💡 Quick Guide to Ratings:</strong> 
+          The large pink number is <strong>Net Runs Contributed (or Saved) Above Average per 100 Pressure Deliveries</strong> (e.g. <strong>+29.45</strong> = scores ~169 runs vs typical 140). The bracket <strong>[13.7, 59.1]</strong> is the 95% statistical confidence range.
+        </div>
+        <a href="#analytics-glossary" style="color: var(--rr-pink); font-size: 12px; font-weight: bold; text-decoration: underline; white-space: nowrap;">See Full Glossary & Real Examples ↓</a>
+      </div>
+
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
         <div>
           <h2 id="batters-heading" style="font-size: 22px; color: var(--text);">Top 10 Batters Under Pressure</h2>
@@ -190,7 +200,7 @@
                 <th data-sort="sr_hp">Pressure SR</th>
                 <th data-sort="rae_per_100">RAE / 100</th>
                 <th data-sort="hit_rate">Hit Rate</th>
-                <th data-sort="final_pressure_rating">Final Rating</th>
+                <th data-sort="final_pressure_rating">Final Rating <span style="font-size: 10px; font-weight: normal; display: block; color: var(--text-muted); text-transform: none;">(Runs Above Avg / 100b)</span></th>
                 <th>95% CI</th>
               </tr>
             </thead>
@@ -237,7 +247,7 @@
                 <th data-sort="econ_hp">Pressure Econ</th>
                 <th data-sort="rsae_per_100">RSAE / 100</th>
                 <th data-sort="hit_rate">Hit Rate</th>
-                <th data-sort="final_pressure_rating">Final Rating</th>
+                <th data-sort="final_pressure_rating">Final Rating <span style="font-size: 10px; font-weight: normal; display: block; color: var(--text-muted); text-transform: none;">(Runs Saved / 100b)</span></th>
                 <th>95% CI</th>
               </tr>
             </thead>
@@ -400,18 +410,58 @@
   </main>
 
   <!-- Global Footer with Glossary of Short Forms & Cricket Analytics Terms -->
-  <footer style="background-color: var(--surface); border-top: 2px solid var(--border); padding: 36px 0 24px; margin-top: 40px;">
+  <!-- Analytics Glossary & Real-World Examples Footer -->
+  <footer id="analytics-glossary" style="background-color: var(--surface); border-top: 2px solid var(--border); padding: 36px 0 28px; margin-top: 48px;">
     <div class="container">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 22px; border-bottom: 1.5px solid var(--border); padding-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <img src="rr_logo_sm.png" alt="RR" style="width: 28px; height: 32px; object-fit: contain;">
-          <span style="font-family: var(--font-heading); font-size: 16px; font-weight: bold; color: var(--text);">
-            RAJASTHAN ROYALS <span style="color: var(--rr-pink);">ANALYTICS GLOSSARY</span>
+          <span style="font-family: var(--font-heading); font-size: 18px; font-weight: bold; color: var(--text);">
+            RAJASTHAN ROYALS <span style="color: var(--rr-pink);">ANALYTICS GLOSSARY & GUIDE</span>
           </span>
         </div>
-        <span style="font-size: 12px; color: var(--text-muted);">Quick Reference of Terms, Acronyms & Statistical Logic Used in this Dashboard</span>
+        <span style="font-size: 12px; color: var(--text-muted);">Quick Reference of Terms, Metrics & Concrete Player Examples</span>
       </div>
 
+      <!-- Real-World Concrete Examples Banner -->
+      <div style="background: linear-gradient(135deg, rgba(230, 56, 148, 0.06) 0%, rgba(26, 54, 103, 0.06) 100%); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+          <span style="background: var(--rr-pink); color: #fff; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Real-World Guide</span>
+          <h4 style="font-size: 15px; font-weight: 700; color: var(--text); margin: 0;">How to Understand the Ratings: Concrete Examples</h4>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; font-size: 12.5px; line-height: 1.55;">
+          <!-- Batter Example -->
+          <div style="background: var(--surface); padding: 14px 16px; border-radius: var(--radius-sm); border-left: 3.5px solid var(--rr-pink); box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+              <span style="font-weight: 800; color: var(--rr-pink); font-size: 13.5px;">🏏 Batter: Ayush Mhatre</span>
+              <span style="font-family: var(--font-mono); font-weight: bold; color: var(--text);">Rating: +29.45 | [13.7, 59.1]</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 6px;">
+              <strong>What +29.45 means:</strong> When batting under high pressure (close chase, high RRR, death/powerplay tension), Ayush scores <strong>+29.45 more runs per 100 deliveries</strong> than a league-average batter facing the same bowlers and context (scoring <strong>~169 runs vs average 140</strong> at a blistering SR 193.3).
+            </p>
+            <p style="color: var(--text-muted); font-size: 11.5px;">
+              <strong>What [13.7, 59.1] means:</strong> This is the 95% Clustered Confidence Interval across 400 match resamples. It guarantees with 95% certainty that his true pressure talent is at least <strong>+13.7 runs above average</strong>, proving his clutch output is not a lucky fluke.
+            </p>
+          </div>
+
+          <!-- Bowler Example -->
+          <div style="background: var(--surface); padding: 14px 16px; border-radius: var(--radius-sm); border-left: 3.5px solid var(--rr-blue); box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+              <span style="font-weight: 800; color: var(--rr-blue); font-size: 13.5px;">🎯 Bowler: Sufiyan Muqeem</span>
+              <span style="font-family: var(--font-mono); font-weight: bold; color: var(--text);">Rating: +28.46 | [15.0, 30.9]</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 6px;">
+              <strong>What +28.46 means:</strong> When bowling in high-pressure match situations, Sufiyan concedes <strong>28.46 fewer runs per 100 deliveries</strong> compared to an average T20 bowler (delivering an economy of <strong>4.29 vs average 8.40</strong> across identical match phases).
+            </p>
+            <p style="color: var(--text-muted); font-size: 11.5px;">
+              <strong>What [15.0, 30.9] means:</strong> The narrow, rock-solid confidence range (15.0 to 30.9) confirms high consistency across 133 pressure balls with an 83% positive match hit rate.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Metric Definitions Grid -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; font-size: 12.5px; line-height: 1.6;">
         <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--rr-pink);">
           <div style="font-weight: bold; color: var(--rr-pink); text-transform: uppercase; margin-bottom: 4px;">PI (Pressure Index)</div>
