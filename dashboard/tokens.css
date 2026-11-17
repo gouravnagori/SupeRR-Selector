@@ -121,16 +121,31 @@ h1, h2, h3, h4, .brand-title, .metric-value, .rank-badge {
   gap: 12px;
 }
 
-.rr-crest-img {
+.brand-logo-container {
   width: 40px !important;
   height: 45px !important;
+  min-width: 40px !important;
   max-width: 40px !important;
+  min-height: 45px !important;
   max-height: 45px !important;
-  object-fit: contain !important;
+  overflow: hidden !important;
+  border-radius: var(--radius-sm);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: var(--rr-pink);
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(230, 56, 148, 0.35);
+}
+
+.rr-crest-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
   flex-shrink: 0 !important;
   display: block !important;
-  border-radius: var(--radius-sm);
-  filter: drop-shadow(0 2px 4px rgba(230, 56, 148, 0.3));
 }
 
 .brand-title {
