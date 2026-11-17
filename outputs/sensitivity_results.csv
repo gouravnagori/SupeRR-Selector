@@ -1,0 +1,8 @@
+scenario,batter_spearman,batter_kendall,batter_top10_overlap,bowler_spearman,bowler_kendall,bowler_top10_overlap
+Baseline (Q75 PI),0.903,0.765,8/10,0.71,0.531,5/10
+Alt 1: Death Chase Close,0.556,0.397,3/10,0.399,0.229,0/10
+Alt 2: Top 20% PI,0.838,0.66,7/10,0.688,0.516,6/10
+Alt 3: RRR Pressure Only,0.406,0.295,1/10,0.386,0.279,2/10
+Alt 4: No Comp Weighting,0.904,0.767,9/10,0.709,0.531,5/10
+Alt 5: Min 50 Balls (Relaxed),0.63,0.554,6/10,0.458,0.368,2/10
+Alt 6: Min 100 Balls (Strict),0.937,0.792,7/10,0.785,0.594,5/10
