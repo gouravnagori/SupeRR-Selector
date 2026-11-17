@@ -34,11 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Interactive Chase Scrubber State
 
-  // Tab Navigation
+  // Tab Navigation with Full Browser History & Back/Forward Support
   const tabButtons = document.querySelectorAll('.nav-tab-btn');
   const tabSections = document.querySelectorAll('.tab-section');
 
-  function switchTab(tabId) {
+  function switchTab(tabId, pushHistory = true) {
+    if (!tabId) tabId = 'overview';
     currentTab = tabId;
     tabButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tabId);
@@ -49,10 +50,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabId === 'batters') renderBattersTable();
     if (tabId === 'bowlers') renderBowlersTable();
     if (tabId === 'compare') renderCompareView();
+
+    if (pushHistory) {
+      const newHash = tabId === 'overview' ? '' : '#' + tabId;
+      if (window.location.hash !== newHash) {
+        try {
+          history.pushState({ tab: tabId }, '', newHash || window.location.pathname);
+        } catch (e) {
+          // Fallback if local file protocol restricts pushState
+          window.location.hash = newHash;
+        }
+      }
+    }
   }
 
   tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab, true));
+  });
+
+  // Handle native browser Back / Forward buttons
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.tab) {
+      switchTab(e.state.tab, false);
+    } else if (window.location.hash) {
+      const hashTab = window.location.hash.replace('#', '');
+      if (document.getElementById(`section-${hashTab}`)) {
+        switchTab(hashTab, false);
+      }
+    } else if (window.INITIAL_TAB) {
+      switchTab(window.INITIAL_TAB, false);
+    } else {
+      switchTab('overview', false);
+    }
   });
 
   // ==================== SECTION 1: OVERVIEW HERO (TOP 10 & TOP 15) ====================
@@ -726,5 +755,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderOverview();
   initScrubber();
   renderSensitivity();
+
+  // Set initial tab based on window.INITIAL_TAB or URL Hash (for forward/backward nav)
+  const initialHash = window.location.hash ? window.location.hash.replace('#', '') : null;
+  const startTab = window.INITIAL_TAB || (initialHash && document.getElementById(`section-${initialHash}`) ? initialHash : 'overview');
+  switchTab(startTab, false);
 });
 
