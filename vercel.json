@@ -2,17 +2,7 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/", "destination": "/dashboard/index.html" },
-    { "source": "/overview", "destination": "/dashboard/index.html" },
-    { "source": "/batters", "destination": "/dashboard/batters.html" },
-    { "source": "/bowlers", "destination": "/dashboard/bowlers.html" },
-    { "source": "/compare", "destination": "/dashboard/compare.html" },
-    { "source": "/pressure-dynamics", "destination": "/dashboard/pressure-dynamics.html" },
-    { "source": "/methodology", "destination": "/dashboard/methodology.html" },
-    { "source": "/rr-fit", "destination": "/dashboard/rr-fit.html" },
-    { "source": "/(.*)", "destination": "/dashboard/$1" }
-  ],
+  "outputDirectory": "dashboard",
   "headers": [
     {
       "source": "/(.*)",
