@@ -1,0 +1,23 @@
+# Data pack & large zip archives (never commit raw competition data)
+6af458274c1e8_data_pack.zip
+6af458274c1e8_data_pack/
+scratch/
+*.png
+!dashboard/*.png
+!outputs/figures/*.png
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# OS and Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
