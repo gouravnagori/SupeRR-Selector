@@ -4,6 +4,9 @@
 scratch/
 *.png
 !dashboard/*.png
+!dashboard/**/*.png
+!public/*.png
+!public/**/*.png
 !outputs/figures/*.png
 
 # Python & Environment
